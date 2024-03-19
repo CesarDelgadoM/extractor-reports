@@ -1,0 +1,16 @@
+server:
+  port: :3030
+
+worker:
+  pool: 10
+
+rabbitmq:
+  URI: amqp://%s:%s@localhost:5672/
+  user: guest
+  password: guest
+
+mongo:
+  URI: mongodb+srv://%s:%s@mycluster.xklf4cr.mongodb.net/
+  User: pointer
+  Password: pdjdz4DqKrbVtP1B
+  DBName: restaurant-reports
