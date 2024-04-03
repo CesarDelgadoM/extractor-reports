@@ -5,7 +5,6 @@ import (
 
 	"github.com/CesarDelgadoM/extractor-reports/internal/producer"
 	"github.com/CesarDelgadoM/extractor-reports/internal/requests"
-	"github.com/CesarDelgadoM/extractor-reports/internal/utils"
 	"github.com/CesarDelgadoM/extractor-reports/pkg/httperrors"
 	"github.com/CesarDelgadoM/extractor-reports/pkg/logger/zap"
 	"github.com/CesarDelgadoM/extractor-reports/pkg/stream"
@@ -59,7 +58,7 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 	bindkey := strings.ToLower(restaurant.Name) + bindSuffix
 
 	// Publish queuename
-	utils.PublisQueueName(e.producer, queuename)
+	producer.PublishQueueName(e.producer, queuename)
 
 	// Set restaurant data to message
 	message.Data = *restaurant
@@ -73,6 +72,7 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 		Key:  bindkey,
 	})
 
+	// Publish restaurant data
 	e.producer.Publish(&stream.PublishOpts{
 		RoutingKey: bindkey,
 		Body:       message.ToBytes(),
@@ -103,6 +103,7 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 			message.Status = 0
 		}
 
+		// Publish branches data
 		e.producer.Publish(&stream.PublishOpts{
 			RoutingKey: bindkey,
 			Body:       message.ToBytes(),

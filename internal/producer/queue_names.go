@@ -1,9 +1,6 @@
-package utils
+package producer
 
-import (
-	"github.com/CesarDelgadoM/extractor-reports/internal/producer"
-	"github.com/CesarDelgadoM/extractor-reports/pkg/stream"
-)
+import "github.com/CesarDelgadoM/extractor-reports/pkg/stream"
 
 const (
 	queuenames = "queues-names-queue"
@@ -11,7 +8,7 @@ const (
 )
 
 // Publish the name of the queues, for a listener consumer
-func PublisQueueName(producer producer.IChannel, queuename string) {
+func PublishQueueName(producer IChannel, queuename string) {
 	queue := producer.Queue(&stream.QueueOpts{
 		Name: queuenames,
 	})
