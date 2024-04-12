@@ -9,7 +9,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type IChannel interface {
+type IProducer interface {
 	Exchange(opts *stream.ExchangeOpts)
 	BindQueue(opts *stream.BindOpts)
 	Publish(opts *stream.PublishOpts)
@@ -28,19 +28,11 @@ type producer struct {
 	ch   *amqp.Channel
 }
 
-func NewProducer(opts *ProducerOpts, rabbit *stream.RabbitMQ) IChannel {
-	p := producer{
+func NewProducer(opts *ProducerOpts, rabbit *stream.RabbitMQ) IProducer {
+	return &producer{
 		opts: opts,
-		ch:   rabbit.Channel(),
+		ch:   rabbit.OpenChannel(),
 	}
-
-	p.Exchange(&stream.ExchangeOpts{
-		Name:    p.opts.ExchangeName,
-		Kind:    p.opts.ExchangeType,
-		Durable: true,
-	})
-
-	return &p
 }
 
 func (p *producer) Exchange(opts *stream.ExchangeOpts) {
@@ -103,7 +95,7 @@ func (p *producer) Queue(opts *stream.QueueOpts) amqp.Queue {
 		opts.Args,
 	)
 	if err != nil {
-		zap.Log.Error("Failed to create queue: ", queue)
+		zap.Log.Error("Failed to create queue: ", err)
 	}
 
 	return queue

@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/CesarDelgadoM/extractor-reports/config"
 	"github.com/CesarDelgadoM/extractor-reports/internal/extractors/branch"
-	"github.com/CesarDelgadoM/extractor-reports/internal/producer"
+	"github.com/CesarDelgadoM/extractor-reports/internal/producer/databus"
 	"github.com/CesarDelgadoM/extractor-reports/internal/requests"
 	"github.com/CesarDelgadoM/extractor-reports/internal/workerpool"
 	"github.com/CesarDelgadoM/extractor-reports/pkg/database"
@@ -40,23 +40,21 @@ func (s *Server) Run() {
 	// Store
 	store := requests.NewStoreRequests()
 
-	// Producer
-	opts := &producer.ProducerOpts{
-		ExchangeName: "reports",
-		ExchangeType: "direct",
-		ContentType:  "application/json",
-	}
-	producer := producer.NewProducer(opts, rabbitmq)
-	defer producer.Close()
+	// DataBus
+	databus := databus.NewDataBus(rabbitmq)
 
 	// App
 	app := fiber.New()
+
+	// Producer
+	branchProducer := branch.NewBranchProducer(s.config.Producer.Branch, rabbitmq)
+	defer branchProducer.Close()
 
 	// Repositorys
 	branchRepository := branch.NewBranchRepository(mongodb)
 
 	// Extractors
-	branchExtractor := branch.NewBranchExtractor(store, producer, branchRepository)
+	branchExtractor := branch.NewBranchExtractor(store, branchProducer, branchRepository)
 
 	// Services
 	branchService := branch.NewBranchService(workerpool, store, branchExtractor)

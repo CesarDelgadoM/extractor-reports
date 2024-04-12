@@ -44,7 +44,7 @@ type BindOpts struct {
 }
 
 type RabbitMQ struct {
-	amqp *amqp.Connection
+	*amqp.Connection
 }
 
 func ConnectRabbitMQ(config *config.RabbitMQ) *RabbitMQ {
@@ -56,19 +56,15 @@ func ConnectRabbitMQ(config *config.RabbitMQ) *RabbitMQ {
 	zap.Log.Info("Connection to rabbitmq success")
 
 	return &RabbitMQ{
-		amqp: conn,
+		conn,
 	}
 }
 
-func (rmq *RabbitMQ) Channel() *amqp.Channel {
-	ch, err := rmq.amqp.Channel()
+func (rmq *RabbitMQ) OpenChannel() *amqp.Channel {
+	ch, err := rmq.Channel()
 	if err != nil {
 		zap.Log.Fatal("Opened channel failed: ", err)
 	}
 
 	return ch
-}
-
-func (rmq *RabbitMQ) Close() {
-	rmq.amqp.Close()
 }

@@ -8,7 +8,6 @@ import (
 type RestaurantRequest struct {
 	Userid uint   `json:"userid"`
 	Name   string `json:"name"`
-	Type   string `json:"type"`
 	Format string `json:"format"`
 }
 

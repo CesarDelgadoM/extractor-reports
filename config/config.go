@@ -11,6 +11,7 @@ type Config struct {
 	Worker   *WorkerConfig
 	RabbitMQ *RabbitMQ
 	Mongo    *MongoConfig
+	Producer *Producer
 }
 
 type ServerConfig struct {
@@ -32,6 +33,16 @@ type MongoConfig struct {
 	User     string
 	Password string
 	DBName   string
+}
+
+type Producer struct {
+	Branch *Branch
+}
+
+type Branch struct {
+	ExchangeName string
+	ExchangeType string
+	ContentType  string
 }
 
 func LoadConfig(filename string) *viper.Viper {

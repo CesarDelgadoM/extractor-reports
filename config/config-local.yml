@@ -14,3 +14,9 @@ mongo:
   User: pointer
   Password: pdjdz4DqKrbVtP1B
   DBName: restaurant-reports
+
+producer:
+  branch:
+    exchangeName: reports
+    exchangeType: direct
+    contentType: application/json
