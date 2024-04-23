@@ -41,7 +41,7 @@ func (s *Server) Run() {
 	store := requests.NewStoreRequests()
 
 	// DataBus
-	databus := databus.NewDataBus(rabbitmq)
+	databus := databus.NewDataBus(s.config.Producer.DataBus, rabbitmq)
 
 	// App
 	app := fiber.New()
@@ -54,7 +54,7 @@ func (s *Server) Run() {
 	branchRepository := branch.NewBranchRepository(mongodb)
 
 	// Extractors
-	branchExtractor := branch.NewBranchExtractor(store, branchProducer, branchRepository)
+	branchExtractor := branch.NewBranchExtractor(store, databus, branchProducer, branchRepository)
 
 	// Services
 	branchService := branch.NewBranchService(workerpool, store, branchExtractor)

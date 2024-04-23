@@ -1,14 +1,15 @@
 package databus
 
 import (
+	"github.com/CesarDelgadoM/extractor-reports/config"
 	"github.com/CesarDelgadoM/extractor-reports/internal/producer"
 	"github.com/CesarDelgadoM/extractor-reports/internal/utils"
 	"github.com/CesarDelgadoM/extractor-reports/pkg/stream"
 )
 
 const (
-	queuenames = "queues-names-queue"
-	bindnames  = "queues-names-bind"
+	queuenames     = "queues-names-queue"
+	bindqueuenames = "queues-names-bind"
 )
 
 type IDataBus interface {
@@ -19,15 +20,24 @@ type dataBus struct {
 	producer producer.IProducer
 }
 
-func NewDataBus(rabbitmq *stream.RabbitMQ) IDataBus {
+func NewDataBus(config *config.DataBus, rabbitmq *stream.RabbitMQ) IDataBus {
 
 	opts := &producer.ProducerOpts{
-		ExchangeType: "direct",
-		ContentType:  "application/json",
+		ExchangeType: config.ExchangeType,
+		ExchangeName: config.ExchangeName,
+		ContentType:  config.ContentType,
 	}
 
+	p := producer.NewProducer(opts, rabbitmq)
+
+	p.Exchange(&stream.ExchangeOpts{
+		Name:    opts.ExchangeName,
+		Kind:    opts.ExchangeType,
+		Durable: true,
+	})
+
 	return &dataBus{
-		producer: producer.NewProducer(opts, rabbitmq),
+		producer: p,
 	}
 }
 
@@ -40,11 +50,11 @@ func (db *dataBus) PublishQueueName(msg producer.MessageQueueNames) {
 
 	db.producer.BindQueue(&stream.BindOpts{
 		Name: queue.Name,
-		Key:  bindnames,
+		Key:  bindqueuenames,
 	})
 
 	db.producer.Publish(&stream.PublishOpts{
-		RoutingKey: bindnames,
+		RoutingKey: bindqueuenames,
 		Body:       utils.ToBytes(msg),
 	})
 }

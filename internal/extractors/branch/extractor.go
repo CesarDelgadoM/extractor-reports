@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	typeReport  = "branch"
+	reportType  = "branch"
 	queueSuffix = "-restaurant-queue"
 	bindSuffix  = "-restaurant-bind"
 	batch       = 10
@@ -40,9 +40,6 @@ func NewBranchExtractor(store requests.ISet, databus databus.IDataBus, producer 
 }
 
 func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
-	// Close channel
-	defer e.producer.Close()
-
 	// Store request in md5 hash
 	e.store.Set(params.String())
 	defer e.store.Delete(params.String())
@@ -66,12 +63,12 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 
 	// Publish queuename to data bus
 	e.databus.PublishQueueName(producer.MessageQueueNames{
-		TypeReport: typeReport,
+		ReportType: reportType,
 		QueueName:  queuename,
 	})
 
 	// Set restaurant data to message
-	message.Data = *restaurant
+	message.Data = utils.ToBytes(restaurant)
 
 	queue := e.producer.Queue(&stream.QueueOpts{
 		Name:    queuename,
@@ -107,7 +104,7 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 		}
 
 		// Set branches data to message
-		message.Data = *branches
+		message.Data = utils.ToBytes(branches)
 
 		// Validate if extraction finished
 		if size-batch <= 0 {

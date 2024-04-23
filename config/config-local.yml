@@ -16,7 +16,11 @@ mongo:
   DBName: restaurant-reports
 
 producer:
+  databus:
+    exchangeName: queues
+    exchangeType: direct
+    contentType: application/json
   branch:
-    exchangeName: reports
+    exchangeName: branch-reports
     exchangeType: direct
     contentType: application/json

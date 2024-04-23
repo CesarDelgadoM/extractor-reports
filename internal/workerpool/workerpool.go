@@ -51,12 +51,9 @@ func (w *WorkerPool) dispatch() {
 
 	timeout := time.NewTimer(idleTimeout)
 
-Loop:
 	for {
 		if w.waitingQueue.Len() != 0 {
-			if !w.processWaitingQueue() {
-				break Loop
-			}
+			w.processWaitingQueue()
 			continue
 		}
 
@@ -87,8 +84,6 @@ Loop:
 			timeout.Reset(idleTimeout)
 		}
 	}
-
-	wg.Wait()
 }
 
 func (w *WorkerPool) worker(task func(), workerQueue chan func(), wg *sync.WaitGroup) {
@@ -99,7 +94,7 @@ func (w *WorkerPool) worker(task func(), workerQueue chan func(), wg *sync.WaitG
 	wg.Done()
 }
 
-func (w *WorkerPool) processWaitingQueue() bool {
+func (w *WorkerPool) processWaitingQueue() {
 	select {
 	case task := <-w.taskQueue:
 		w.waitingQueue.PushBack(task)
@@ -107,8 +102,6 @@ func (w *WorkerPool) processWaitingQueue() bool {
 	case w.workerQueue <- w.waitingQueue.Front().Value.(func()):
 		w.waitingQueue.Remove(w.waitingQueue.Front())
 	}
-
-	return true
 }
 
 // Send a nil value to kill an idle worker

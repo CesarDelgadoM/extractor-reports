@@ -36,7 +36,14 @@ type MongoConfig struct {
 }
 
 type Producer struct {
-	Branch *Branch
+	DataBus *DataBus
+	Branch  *Branch
+}
+
+type DataBus struct {
+	ExchangeName string
+	ExchangeType string
+	ContentType  string
 }
 
 type Branch struct {
