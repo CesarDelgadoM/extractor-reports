@@ -2,7 +2,7 @@ server:
   port: :3030
 
 worker:
-  pool: 10
+  pool: 100
 
 rabbitmq:
   URI: amqp://%s:%s@localhost:5672/
@@ -17,10 +17,10 @@ mongo:
 
 producer:
   databus:
-    exchangeName: queues
+    exchangeName: reports.queues
     exchangeType: direct
     contentType: application/json
   branch:
-    exchangeName: branch-reports
+    exchangeName: reports.branches
     exchangeType: direct
     contentType: application/json

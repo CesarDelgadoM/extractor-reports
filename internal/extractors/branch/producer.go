@@ -6,8 +6,12 @@ import (
 	"github.com/CesarDelgadoM/extractor-reports/pkg/stream"
 )
 
+type BranchProducer struct {
+	producer.IProducer
+}
+
 // Initializator to create a branch producer
-func NewBranchProducer(config *config.Branch, rabbit *stream.RabbitMQ) producer.IProducer {
+func NewBranchProducer(config *config.Branch, rabbit *stream.RabbitMQ) *BranchProducer {
 
 	opts := &producer.ProducerOpts{
 		ExchangeName: config.ExchangeName,
@@ -23,5 +27,7 @@ func NewBranchProducer(config *config.Branch, rabbit *stream.RabbitMQ) producer.
 		Durable: true,
 	})
 
-	return p
+	return &BranchProducer{
+		p,
+	}
 }

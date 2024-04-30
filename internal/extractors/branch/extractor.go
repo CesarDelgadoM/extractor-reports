@@ -14,8 +14,8 @@ import (
 
 const (
 	reportType  = "branch"
-	queueSuffix = "-restaurant-queue"
-	bindSuffix  = "-restaurant-bind"
+	queueSuffix = "-branches-queue-"
+	bindSuffix  = "-branches-bind-"
 	batch       = 10
 )
 
@@ -40,9 +40,10 @@ func NewBranchExtractor(store requests.ISet, databus databus.IDataBus, producer 
 }
 
 func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
+	defer e.store.Delete(params.String())
+
 	// Store request in md5 hash
 	e.store.Set(params.String())
-	defer e.store.Delete(params.String())
 
 	message := producer.Message{
 		Userid: params.Userid,
@@ -58,8 +59,9 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 		return
 	}
 
-	queuename := strings.ToLower(restaurant.Name) + queueSuffix
-	bindkey := strings.ToLower(restaurant.Name) + bindSuffix
+	timestamp := utils.TimestampID()
+	queuename := strings.ToLower(restaurant.Name) + queueSuffix + timestamp
+	bindkey := strings.ToLower(restaurant.Name) + bindSuffix + timestamp
 
 	// Publish queuename to data bus
 	e.databus.PublishQueueName(producer.MessageQueueNames{
@@ -71,8 +73,7 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 	message.Data = utils.ToBytes(restaurant)
 
 	queue := e.producer.Queue(&stream.QueueOpts{
-		Name:    queuename,
-		Durable: true,
+		Name: queuename,
 	})
 
 	e.producer.BindQueue(&stream.BindOpts{
