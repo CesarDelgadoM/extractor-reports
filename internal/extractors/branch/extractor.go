@@ -13,10 +13,14 @@ import (
 )
 
 const (
+	restaurant_type = "restaurant"
+	branch_type     = "branch"
+
 	reportType  = "branch"
 	queueSuffix = "-branches-queue-"
 	bindSuffix  = "-branches-bind-"
-	batch       = 10
+
+	batch = 10
 )
 
 type IExtractor interface {
@@ -48,6 +52,7 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 	message := producer.Message{
 		Userid: params.Userid,
 		Format: params.Format,
+		Type:   restaurant_type,
 		Status: 1,
 	}
 
@@ -106,6 +111,7 @@ func (e *BranchExtractor) ExtractData(params requests.RestaurantRequest) {
 
 		// Set branches data to message
 		message.Data = utils.ToBytes(branches)
+		message.Type = branch_type
 
 		// Validate if extraction finished
 		if size-batch <= 0 {

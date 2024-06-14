@@ -10,6 +10,7 @@ type MessageQueueNames struct {
 type Message struct {
 	Userid uint
 	Format string
+	Type   string
 	Status int
 	Data   []byte
 }
